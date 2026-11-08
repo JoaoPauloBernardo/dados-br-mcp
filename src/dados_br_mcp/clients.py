@@ -45,7 +45,11 @@ async def _get_json(url: str, params: dict | None = None):
 
 
 def _pontos_sgs(dados: list[dict]) -> list[dict]:
-    return [{"date": x["data"], "val": to_float(x["valor"])} for x in dados]
+    # O SGS nem sempre devolve em ordem cronológica (ex.: /ultimos da série 1178
+    # vem do mais novo para o mais antigo). Ordenamos para o último ponto ser
+    # sempre o mais recente; o corte de MAX_PONTOS no servidor depende disso.
+    pontos = [{"date": x["data"], "val": to_float(x["valor"])} for x in dados]
+    return sorted(pontos, key=lambda p: parse_data(p["date"]))
 
 
 async def sgs_periodo(codigo: int, data_inicial: str, data_final: str) -> list[dict]:
