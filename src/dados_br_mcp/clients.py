@@ -1,4 +1,5 @@
 """Acesso às APIs públicas do BCB (SGS) e do IBGE (SIDRA)."""
+import re
 from datetime import date, datetime
 
 import httpx
@@ -7,6 +8,11 @@ SGS_URL = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados"
 SIDRA_URL = "https://apisidra.ibge.gov.br/values"
 TIMEOUT = httpx.Timeout(30.0)
 HEADERS = {"User-Agent": "dados-br-mcp/0.1"}
+
+
+# Filtro de classificação do SIDRA: "c<id>/<categorias>", ex.: "c11255/90707"
+# ou "c544/129314,129315". Vários filtros separados por "/".
+_CLASSIFICACAO = re.compile(r"c\d+/(all|allxt|\d+(,\d+)*)(/c\d+/(all|allxt|\d+(,\d+)*))*")
 
 
 class FonteIndisponivel(Exception):
@@ -69,8 +75,23 @@ async def sgs_ultimos(codigo: int, n: int) -> list[dict]:
     return _pontos_sgs(await _get_json(url, {"formato": "json"}))
 
 
-async def sidra(tabela: int, variavel: int, periodos: str, nivel: str) -> list[dict]:
+def validar_classificacao(classificacao: str) -> str:
+    c = classificacao.strip().lower()
+    if not _CLASSIFICACAO.fullmatch(c):
+        raise ValueError(
+            f"Classificação '{classificacao}' inválida. Use 'c<id>/<categoria>', "
+            "ex.: 'c11255/90707' (PIB a preços de mercado na tabela 5932). "
+            "Os ids estão em https://servicodados.ibge.gov.br/api/v3/agregados/<tabela>/metadados"
+        )
+    return c
+
+
+async def sidra(
+    tabela: int, variavel: int, periodos: str, nivel: str, classificacao: str | None = None
+) -> list[dict]:
     url = f"{SIDRA_URL}/t/{tabela}/{nivel}/v/{variavel}/p/{periodos}"
+    if classificacao:
+        url += "/" + validar_classificacao(classificacao)
     header, *rows = await _get_json(url)
     out = []
     for row in rows:

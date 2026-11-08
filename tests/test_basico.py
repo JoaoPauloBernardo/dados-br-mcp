@@ -1,7 +1,7 @@
 import pytest
 
 from dados_br_mcp.catalogo import resolver
-from dados_br_mcp.clients import _pontos_sgs, parse_data, to_float
+from dados_br_mcp.clients import _pontos_sgs, parse_data, to_float, validar_classificacao
 
 
 def test_resolver_apelido():
@@ -42,3 +42,14 @@ def test_pontos_sgs_ordena_por_data():
     assert [p["date"] for p in pontos] == ["30/12/2025", "31/12/2025", "02/01/2026"]
     assert pontos[-1]["val"] == 13.65
     assert pontos[0]["val"] is None
+
+
+@pytest.mark.parametrize("valida", ["c11255/90707", "C544/129314,129315", "c315/all", "c11255/90707/c2/6794"])
+def test_classificacao_valida(valida):
+    assert validar_classificacao(valida) == valida.lower()
+
+
+@pytest.mark.parametrize("invalida", ["11255/90707", "c11255", "c11255/", "c11255/abc", "c1/2/../t/1"])
+def test_classificacao_invalida(invalida):
+    with pytest.raises(ValueError, match="c<id>/<categoria>"):
+        validar_classificacao(invalida)

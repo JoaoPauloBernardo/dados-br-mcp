@@ -105,16 +105,22 @@ async def tabela_sidra(
     tabela: Annotated[int, Field(description="Número da tabela no SIDRA, ex.: 1737 (IPCA)")],
     variavel: Annotated[int, Field(description="Código da variável, ex.: 63 (IPCA variação mensal)")],
     periodos: Annotated[str, Field(description="'last N' (ex.: 'last 12'), 'all' ou intervalo 'AAAAMM-AAAAMM'")] = "last 12",
-    nivel: Annotated[str, Field(description="Nível territorial: 'n1/all' = Brasil, 'n3/all' = todas as UFs")] = "n1/all",
+    nivel: Annotated[str, Field(description="Nível territorial: 'n1/all' = Brasil, 'n3/all' = todas as UFs, "
+                                            "'n7/all' = regiões metropolitanas")] = "n1/all",
+    classificacao: Annotated[str | None, Field(description="Filtro de categoria, obrigatório em tabelas com "
+                                                           "classificação, ex.: 'c11255/90707' (PIB na tabela 5932), "
+                                                           "'c544/129314' (indústria geral na 8888)")] = None,
 ) -> dict:
     """Consulta uma tabela do IBGE no SIDRA (inflação, PNAD, PIB, produção
     industrial etc.). Use para dados do IBGE que não estão no SGS ou quando
-    precisar de recorte por UF."""
-    log.info("tabela_sidra t=%s v=%s p=%s n=%s", tabela, variavel, periodos, nivel)
+    precisar de recorte regional. Se os valores vierem null, a tabela
+    provavelmente exige o parâmetro 'classificacao'."""
+    log.info("tabela_sidra t=%s v=%s p=%s n=%s c=%s", tabela, variavel, periodos, nivel, classificacao)
     with _erro_para_o_modelo():
-        linhas = await clients.sidra(tabela, variavel, periodos, nivel)
+        linhas = await clients.sidra(tabela, variavel, periodos, nivel, classificacao)
     return {
-        "fonte": f"IBGE/SIDRA tabela {tabela}, variável {variavel}",
+        "fonte": f"IBGE/SIDRA tabela {tabela}, variável {variavel}"
+                 + (f", {classificacao}" if classificacao else ""),
         "n_linhas": len(linhas),
         "truncado": len(linhas) > MAX_PONTOS,
         "dados": linhas[-MAX_PONTOS:],
