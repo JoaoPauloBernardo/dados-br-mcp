@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Ambiente virtual
+.venv/
+
+# Testes
+.pytest_cache/
+
+# Build
+dist/
+build/
+*.egg-info/

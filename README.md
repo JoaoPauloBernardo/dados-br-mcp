@@ -1,2 +1,2 @@
 # dados-br-mcp
-Repositorio criado para o estudo e montagem de um MCP
+Servidor MCP em Python que expõe dados econômicos públicos do Brasil (BCB/SGS e IBGE/SIDRA) para agentes de IA.
