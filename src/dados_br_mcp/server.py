@@ -1,4 +1,5 @@
 """Servidor MCP de dados econômicos brasileiros (BCB/SGS e IBGE/SIDRA)."""
+import json
 import logging
 import sys
 from collections.abc import Iterator
@@ -118,6 +119,30 @@ async def tabela_sidra(
         "truncado": len(linhas) > MAX_PONTOS,
         "dados": linhas[-MAX_PONTOS:],
     }
+
+
+# ------------------------------------------------------------- RESOURCE
+
+@mcp.resource("catalogo://series-sgs", mime_type="application/json")
+def recurso_catalogo() -> str:
+    """Catálogo de séries SGS conhecidas pelo servidor (JSON)."""
+    return json.dumps(catalogo(), ensure_ascii=False, indent=2)
+
+
+# --------------------------------------------------------------- PROMPT
+
+@mcp.prompt()
+def panorama_inflacao() -> str:
+    """Roteiro para montar um panorama atual da inflação e dos juros no Brasil."""
+    return (
+        "Monte um panorama da inflação brasileira usando as tools do servidor "
+        "dados-economicos-br: busque os últimos 12 valores de 'ipca', o último "
+        "'ipca_12m' e a 'selic_meta' atual. Calcule o juro real ex-post como "
+        "(1 + selic) / (1 + ipca_12m) - 1, com as taxas em decimal "
+        "(13,75% = 0,1375). Responda com o número principal "
+        "primeiro, uma tabela simples dos valores e a fonte com o código de "
+        "cada série."
+    )
 
 
 def main() -> None:
