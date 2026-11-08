@@ -21,6 +21,8 @@ chamada de tool feita nesta conversa. Nada de memória.
 | Dólar / câmbio                                 | `dolar` (1); euro: 21619                          |
 | Atividade econômica no mês                     | `ibc_br` (24364)                                  |
 | Crescimento do PIB no ano                      | 7326                                              |
+| PIB do último trimestre                        | SIDRA 5932, variável 6564, `c11255/90707`         |
+| Produção industrial                            | SIDRA 8888, variável 11601, `c544/129314`         |
 | Desemprego                                     | 24369 (ou SIDRA 6381, variável 4099)              |
 | Dívida pública                                 | 13762 (% do PIB)                                  |
 | Meta de inflação                               | 13521                                             |
@@ -33,14 +35,15 @@ Na dúvida, chame `listar_series`.
 - **Valor atual ou recente** → `ultimos_valores` (n de 1 a 20).
 - **Período definido** → `buscar_serie`, datas em `dd/mm/aaaa`. Séries diárias aceitam no máximo 10 anos por
   chamada; se `truncado` vier `true`, divida o período.
-- **Dados do IBGE ou recorte regional** → `tabela_sidra`.
+- **Dados do IBGE ou recorte regional** → `tabela_sidra`. Se os valores vierem `null`, a tabela exige o
+  parâmetro `classificacao` (veja os ids no guia de séries).
 - Se uma tool devolver erro, **leia a mensagem**: ela diz como corrigir (formato de data, apelido válido).
   Corrija e tente de novo uma vez. Se a fonte estiver fora do ar, diga isso ao usuário.
 
 ## 3. Interprete corretamente
 
-- **Ordene por data antes de ler.** O SGS às vezes devolve os pontos do mais novo para o mais antigo. O valor
-  mais recente é o de maior data, não necessariamente o último da lista.
+- **O ponto mais recente é o último da lista.** O servidor já ordena as séries do SGS por data (a API do
+  BCB nem sempre devolve em ordem). Mesmo assim, informe sempre a data de referência junto do valor.
 - **`selic_meta` tem datas futuras** (a meta vigente é repetida até o próximo Copom). Use a data ≤ hoje.
 - **Mensal x acumulado.** Variação mensal (`% no mês`) não é inflação anual. Para 12 meses, prefira a série
   oficial (`ipca_12m`, ou SIDRA 1737 variável 2265). Se precisar calcular (ex.: IGP-M 12m), **componha**, não

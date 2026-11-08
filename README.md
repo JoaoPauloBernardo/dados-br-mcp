@@ -15,7 +15,7 @@ o número veio.
 | Tool     | `listar_series`          | Lista as séries que o servidor conhece por apelido (código, unidade, frequência). |
 | Tool     | `ultimos_valores`        | Últimos N valores (1 a 20) de uma série do SGS. Melhor opção para "valor atual". |
 | Tool     | `buscar_serie`           | Série do SGS entre duas datas (`dd/mm/aaaa`). Diárias: janela máxima de 10 anos. |
-| Tool     | `tabela_sidra`           | Consulta uma tabela do IBGE no SIDRA, para o Brasil ou por UF.            |
+| Tool     | `tabela_sidra`           | Consulta uma tabela do IBGE no SIDRA (Brasil, UF ou região metropolitana), com filtro opcional de classificação. |
 | Resource | `catalogo://series-sgs`  | Catálogo de séries em JSON, para a aplicação anexar ao contexto.          |
 | Prompt   | `panorama_inflacao`      | Roteiro pronto: IPCA, IPCA 12 meses, Selic e juro real ex-post.           |
 
@@ -116,6 +116,8 @@ claude mcp add dados-br -- uv --directory C:\caminho\dados-br-mcp run dados-br-m
 - "Como foi o IPCA mês a mês nos últimos 12 meses?"
 - "Qual foi o IPCA do último mês em cada região metropolitana?" (via `tabela_sidra`: tabela 7060,
   variável 63, nível `n7/all`; o IPCA não é calculado por UF)
+- "Quanto o PIB cresceu no último trimestre?" (via `tabela_sidra`: tabela 5932, variável 6564,
+  `classificacao="c11255/90707"`)
 
 ## Decisões de design
 

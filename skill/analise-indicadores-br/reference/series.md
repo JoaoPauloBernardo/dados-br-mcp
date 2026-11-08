@@ -66,11 +66,23 @@ Dias sem pregão (fins de semana, feriados) não aparecem na série.
 | 1737   | IPCA, série histórica desde dez/1979            | 63 mensal · 69 no ano · 2265 em 12 meses · 2266 número-índice | `n1/all`     |
 | 7060   | IPCA por grupos e itens, desde jan/2020         | 63 mensal · 69 no ano · 2265 em 12 meses · 66 peso            | `n1/all`, `n7/all` (regiões metropolitanas), `n6/all` (municípios) |
 | 6381   | Taxa de desocupação, PNAD Contínua trimestral móvel | 4099 taxa de desocupação                                  | `n1/all`     |
+| 5932   | PIB trimestral, taxas de variação em volume     | 6564 contra trimestre anterior (com ajuste sazonal) · 6561 contra mesmo trimestre do ano anterior · 6562 acumulado em 4 trimestres | `n1/all` |
+| 8888   | Produção física industrial (PIM-PF)             | 11601 mês contra mês anterior (com ajuste sazonal) · 11602 contra mesmo mês do ano anterior · 11604 acumulado em 12 meses | `n1/all` (por UF, `n3/all` volta sem valores nesta tabela) |
 
 - **IPCA não existe por UF.** O recorte regional é por região metropolitana (`n7/all`) ou município (`n6/all`)
   na tabela 7060. Sem filtro de classificação, a 7060 devolve o índice geral.
-- **Limitação atual:** tabelas que exigem filtro de classificação (ex.: 5932 PIB trimestral, 8888 produção
-  industrial) voltam com `val: null`, porque `tabela_sidra` ainda não aceita esse filtro. Para PIB e emprego,
-  use as séries do SGS acima.
+- **Tabelas com classificação exigem o parâmetro `classificacao`**; sem ele, os valores voltam `null`.
+  Categorias conferidas:
+
+  | Tabela | `classificacao`  | Categoria                  |
+  |-------:|------------------|----------------------------|
+  | 5932   | `c11255/90707`   | PIB a preços de mercado    |
+  | 5932   | `c11255/90691`   | Indústria (total)          |
+  | 5932   | `c11255/90696`   | Serviços (total)           |
+  | 5932   | `c11255/90687`   | Agropecuária (total)       |
+  | 8888   | `c544/129314`    | Indústria geral            |
+  | 8888   | `c544/129316`    | Indústrias de transformação |
+
+  Ex.: `tabela_sidra(tabela=5932, variavel=6564, periodos="last 4", classificacao="c11255/90707")`.
 - Metadados de qualquer tabela (variáveis, níveis, períodos):
   `https://servicodados.ibge.gov.br/api/v3/agregados/{tabela}/metadados`
